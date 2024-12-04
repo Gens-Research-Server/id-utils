@@ -8,6 +8,7 @@ class DiscordUser:
     def __init__(self, id: int, first: Optional[str] = None, second: Optional[str] = None, third: Optional[str] = None) -> None:
         self.id: int = id
         self.epoch: int = 1420070400000
+        self.new_epoch: int = 1640995200000
         self.first: Optional[str] = first
         self.second: Optional[str] = second
         self.third: Optional[str] = third
@@ -45,19 +46,23 @@ class DiscordUser:
         if not self.second:
             return None
         try:
-            decoded = base64.b64decode(self.second + "==")
+            decoded = base64.b64decode(self.second)
             return int.from_bytes(decoded, byteorder="big")
         except Exception as e:
-            print(f"Error decoding second part: {e}")
-            return None
+            decoded = base64.b64decode(self.second + "==")
+            return int.from_bytes(decoded, byteorder="big")
 
     def _decode_new_second_to_timestamp(self) -> Optional[float]:
-        """Helper function to decode the second part of the token."""
+        """
+        Helper function to decode the second part of the token. 
+        Doesn't yet work as this is intended for newer tokens which have no direct docs
+        Starting epoch 
+        """
         if not self.second:
             return None
         try:
-            decoded = base64.b64decode(self.second + "==")
+            decoded = base64.b64decode(self.second)
             return (int.from_bytes(decoded, byteorder="big") + self.epoch) / 1000
         except Exception as e:
-            print(f"Error decoding second part: {e}")
-            return None
+            decoded = base64.b64decode(self.second + "==")
+            return (int.from_bytes(decoded, byteorder="big") + self.epoch) / 1000
